@@ -1,0 +1,9 @@
+name: pyaedt
+channels:
+  - auto
+  - conda-forge
+  - defaults
+dependencies:
+  - pyaedt
+  - tqdm
+  - ipykernel
