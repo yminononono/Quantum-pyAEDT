@@ -10,7 +10,7 @@ Use the conda environment to install the pyAEDT package and other useful package
 $ conda create -n pyaedt python=3.11 
 $ conda activate pyaedt
 $ conda install -c conda-forge pyaedt
-$ conda install tqdm ipykernel
+$ conda install tqdm ipykernel pyyaml
 ```
 
 or just call
@@ -18,3 +18,4 @@ or just call
 ```bash
 $ conda env create -f environment.yml  
 ```
+

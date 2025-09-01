@@ -1,0 +1,127 @@
+solution:
+  type: "Modal" # "Eigenmode" or "Modal"
+  options:
+    # Common options
+    use_antenna    : False
+    use_second_chip: False
+    max_passes     : 20
+    max_delta_s    : 0.02
+    # Eigen mode
+    min_frequency: "500MHz" # "2GHz"
+    n_mode       : 14
+    copy_mesh    : True
+    # Driven modal mode
+    adaptive_solution_type  : "single" # single, broadband
+    start_frequency         : 10.0
+    stop_frequency          : 20.0
+    medium_frequency        : "exec:0.5*(config['start_frequency'] + config['stop_frequency'])"
+    adaptive_setup_frequency: "exec:config['medium_frequency']"
+    num_of_freq_points      : 201
+    n_waveport_mode         : 2
+
+
+parameter:
+  "$outer_radius"         : "8mm" # 5mm, 8mm (for 10GHz cut-off)
+  "$outer_height"         : "38mm" # 38mm
+  "$coax_radius"          : "1.5mm" # "1.5mm"
+  "$coax_height"          : "9mm"
+  "$antenna_height"       : "18mm"
+  "$antenna_radius"       : "1.5mm"
+  "$antenna_outer_height" : "8mm"
+  "$antenna_outer_radius" : "3mm"
+  "$chip_inductance"      : "1.4nH"
+  "$chip_gap"             : "220um" # 20um
+  "$chip_width"           : "250um" # 250um
+  "$chip_height"          : "2000um" # 400um (For chip_gap : 20um, galvanic with 3240 ( ~4500 with 45 degree ? ) )
+  "$chip_theta"           : "0deg" # 0deg
+  "$chip_pos_z_ratio"     : "0.6"
+  "$chip_pos_z"           : "$chip_pos_z_ratio*$coax_height"
+  "$chip_pos_y"           : "$coax_radius + 0.5*($outer_radius - $coax_radius)"
+  "$wafer_thickness"      : "0.525mm"
+  "$wafer_width"          : "2mm"
+  "$wafer_height"         : "6mm"
+  "$box_height"           : "40mm"
+  "$box_length"           : "2*$outer_radius + 10mm" #"15mm"
+
+sweep:
+  list:
+    Eigenmode: 
+      - "$chip_inductance"
+    Modal:
+      - "$chip_theta"
+      - "$chip_pos_z_ratio" 
+  config:
+    "$chip_inductance":
+        - start_point   : 1.25
+          end_point     : 3
+          step          : 0.25
+          units         : "nH"
+          variation_type: "LinearStep"
+        - start_point   : 0.4
+          end_point     : 1
+          step          : 0.05
+          units         : "nH"
+          variation_type: "LinearStep"
+    "$chip_theta": 
+        - start_point   : 0
+          end_point     : 0
+          step          : 1
+          units         : "deg"
+          variation_type: "LinearCount"
+        # - start_point   : -90
+        #   end_point     : 45
+        #   step          : 4
+        #   units         : "deg"
+        #   variation_type: "LinearCount"
+    "$chip_gap": 
+        - start_point   : 20
+          end_point     : 520
+          step          : 100
+          units         : "um"
+          variation_type: "LinearStep"
+        - start_point   : 1020
+          end_point     : 2020
+          step          : 500
+          units         : "um"
+          variation_type: "LinearStep"
+    "$chip_width": 
+        - start_point   : 100
+          end_point     : 1000
+          step          : 150
+          units         : "um"
+          variation_type: "LinearStep"
+        - start_point   : 1500
+          end_point     : 3000
+          step          : 500
+          units         : "um"
+          variation_type: "LinearStep"
+    "$chip_pos_z_ratio": 
+        - start_point   : 0.4
+          end_point     : 0.8
+          step          : 0.1
+          units         : null
+          variation_type: "LinearStep"
+    "$chip_height": 
+        - start_point   : 500
+          end_point     : 3000
+          step          : 500
+          units         : "um"
+          variation_type: "LinearStep"
+    "$outer_radius": 
+        - start_point   : 5
+          end_point     : 15
+          step          : 6
+          units         : "mm"
+          variation_type: "LinearCount"
+    "$outer_height": 
+        - start_point   : 18
+          end_point     : 38
+          step          : 2
+          units         : "mm"
+          variation_type: "LinearStep"
+    "$coax_height": 
+        - start_point   : 9
+          end_point     : 38
+          step          : 3
+          units         : "mm"
+          variation_type: "LinearCount"
