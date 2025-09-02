@@ -24,6 +24,7 @@ parameter:
   "$cavity_width"     : "17mm" #x
   "$cavity_length"    : "6mm"  #y
   "$cavity_height"    : "16mm" #z
+  "cavity_fillet"     : "2.5mm" # Not configurable 
   "$port_distance"    : "10mm"
   "$port_height"      : "7mm"
   "$port_in_depth"    : "3mm"

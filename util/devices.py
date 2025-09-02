@@ -1,4 +1,5 @@
 import pprint
+import numpy as np
 
 def set_parameters(hfss, config):
     
@@ -185,7 +186,13 @@ def device_BoxCavity( hfss, config ):
     )
  
     box_object = hfss.modeler.create_box( **box_config )
-
+    edges = box_object.edges
+    for edge in edges:
+        pos0 = np.array( edge.vertices[0].position )
+        pos1 = np.array( edge.vertices[1].position )
+        vector = pos0 - pos1
+        if vector[0] == 0 and vector[1] == 0:
+            box_object.fillet(edges = edge, radius = config["parameter"]["cavity_fillet"])
 
     ## Make port
     port_coord = hfss.modeler.create_coordinate_system(
