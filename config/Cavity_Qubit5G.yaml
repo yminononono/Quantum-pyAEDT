@@ -1,50 +1,46 @@
 solution:
-  name: "CoaxCavity"
+  name: "Cavity5G"
   type: "Modal" # "Eigenmode" or "Modal"
   options:
     # Common options
     max_passes     : 20
     max_delta_s    : 0.02
     SaveFields     : True
-    # User options
-    use_antenna    : False
-    use_second_chip: False
     # Eigen mode
     min_frequency: "500MHz" # "2GHz"
-    n_mode       : 14
+    n_mode       : 5
     copy_mesh    : True
     # Driven modal mode
     adaptive_solution_type  : "single" # single, broadband
-    start_frequency         : 10.0
-    stop_frequency          : 20.0
+    start_frequency         : 6.0
+    stop_frequency          : 9.0
     medium_frequency        : "eval:0.5*(start_frequency + stop_frequency)"
     adaptive_setup_frequency: "eval:medium_frequency"
-    num_of_freq_points      : 201
-    n_waveport_mode         : 2
-
+    num_of_freq_points      : 601
+    n_waveport_mode         : 1
 
 parameter:
-  "$outer_radius"         : "8mm" # 5mm, 8mm (for 10GHz cut-off)
-  "$outer_height"         : "38mm" # 38mm
-  "$coax_radius"          : "1.5mm" # "1.5mm"
-  "$coax_height"          : "9mm"
-  "$antenna_height"       : "18mm"
-  "$antenna_radius"       : "1.5mm"
-  "$antenna_outer_height" : "8mm"
-  "$antenna_outer_radius" : "3mm"
-  "$chip_inductance"      : "1.4nH"
-  "$chip_gap"             : "220um" # 20um
-  "$chip_width"           : "250um" # 250um
-  "$chip_height"          : "2000um" # 400um (For chip_gap : 20um, galvanic with 3240 ( ~4500 with 45 degree ? ) )
-  "$chip_theta"           : "0deg" # 0deg
-  "$chip_pos_z_ratio"     : "0.6"
-  "$chip_pos_z"           : "$chip_pos_z_ratio*$coax_height"
-  "$chip_pos_y"           : "$coax_radius + 0.5*($outer_radius - $coax_radius)"
-  "$wafer_thickness"      : "0.525mm"
-  "$wafer_width"          : "2mm"
-  "$wafer_height"         : "6mm"
-  "$box_height"           : "40mm"
-  "$box_length"           : "2*$outer_radius + 10mm" #"15mm"
+  "$cavity_width"     : "30mm" #x
+  "$cavity_length"    : "7mm" #y
+  "$cavity_height"    : "28mm" #z
+  "$port_distance"    : "12mm"
+  "$port_height"      : "7mm"
+  "$port_in_depth"    : "4mm"
+  "$port_out_depth"   : "6.5mm"
+  "$port_inner_radius": "0.3mm"
+  "$port_outer_radius": "2.1mm"
+  "$chip_inductance"  : "9nH"
+  "$chip_gap"         : "20um" # 20um
+  "$chip_width"       : "250um" # 250um
+  "$chip_height"      : "400um" # 400um 
+  "$chip_theta"       : "0deg" # 0deg
+  "$chip_pos_z_ratio" : "0.5"
+  "$chip_pos_z"       : "$chip_pos_z_ratio*$cavity_height"
+  "$chip_pos_y"       : "0"
+  "$chip_pos_x"       : "0"
+  "$wafer_thickness"  : "0.525mm"
+  "$wafer_width"      : "2mm"
+  "$wafer_height"     : "0.95*$cavity_length"
 
 ## Under construction...
 # devices:
@@ -61,11 +57,11 @@ parameter:
 
 sweep:
   list:
-    Eigenmode: 
-      - "$chip_inductance"
-    Modal:
-      - "$chip_theta"
-      - "$chip_pos_z_ratio" 
+    Eigenmode: [] 
+      # - "$chip_inductance"
+    Modal: []
+      # - "$chip_theta"
+      # - "$chip_pos_z_ratio" 
   config:
     "$chip_inductance":
         - start_point   : 1.25
@@ -123,21 +119,3 @@ sweep:
           step          : 500
           units         : "um"
           variation_type: "LinearStep"
-    "$outer_radius": 
-        - start_point   : 5
-          end_point     : 15
-          step          : 6
-          units         : "mm"
-          variation_type: "LinearCount"
-    "$outer_height": 
-        - start_point   : 18
-          end_point     : 38
-          step          : 2
-          units         : "mm"
-          variation_type: "LinearStep"
-    "$coax_height": 
-        - start_point   : 9
-          end_point     : 38
-          step          : 3
-          units         : "mm"
-          variation_type: "LinearCount"
