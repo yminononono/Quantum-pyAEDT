@@ -6,6 +6,16 @@ def set_parameters(hfss, config):
     for var in config["parameter"]:
         hfss[var] = config["parameter"][var]
 
+def set_fillet(object, radius):
+
+    edges = object.edges
+    for edge in edges:
+        pos0 = np.array( edge.vertices[0].position )
+        pos1 = np.array( edge.vertices[1].position )
+        vector = pos0 - pos1
+        if vector[0] == 0 and vector[1] == 0:
+            object.fillet(edges = edge, radius = radius)
+
 def device_CoaxCavity( hfss, config ):
 
     set_parameters(hfss, config)
@@ -186,13 +196,7 @@ def device_BoxCavity( hfss, config ):
     )
  
     box_object = hfss.modeler.create_box( **box_config )
-    edges = box_object.edges
-    for edge in edges:
-        pos0 = np.array( edge.vertices[0].position )
-        pos1 = np.array( edge.vertices[1].position )
-        vector = pos0 - pos1
-        if vector[0] == 0 and vector[1] == 0:
-            box_object.fillet(edges = edge, radius = config["parameter"]["cavity_fillet"])
+    set_fillet(object = box_object, radius = config["parameter"]["cavity_fillet"])
 
     ## Make port
     port_coord = hfss.modeler.create_coordinate_system(
@@ -271,20 +275,22 @@ def device_BoxCavity( hfss, config ):
 
     antenna_out_object = hfss.modeler.create_cylinder( **antenna_config )
 
-    # wafer_coord = hfss.modeler.create_coordinate_system(origin = [0, "$chip_pos_y","$chip_pos_z"], name = "wafer_coord")
-    # wafer_coord.set_as_working_cs()
-    # wafer_config = dict(
-    #     origin   = ["-$wafer_width/2", "-$wafer_height/2", 0],
-    #     sizes    = ["$wafer_width", "$wafer_height", "$wafer_thickness"],
-    #     name     = "wafer",
-    #     material = "silicon"
-    # )
-    # wafer_object = hfss.modeler.create_box( **wafer_config )
 
-    # chip_coord = hfss.modeler.create_coordinate_system(origin = [0, 0,"$wafer_thickness"], reference_cs="wafer_coord", name = "chip_coord")
-    # chip_coord.set_as_working_cs()
-    # cap1 = hfss.modeler.create_rectangle(origin = ["-0.5*$chip_width", "0.5*$chip_gap", 0], sizes = ["$chip_width", "$chip_height"], name = "cap1", orientation="XY")
-    # cap2 = hfss.modeler.create_rectangle(origin = ["-0.5*$chip_width", "-0.5*$chip_gap - $chip_height", 0], sizes =  ["$chip_width", "$chip_height"], name = "cap2", orientation="XY")
+    wafer_coord = hfss.modeler.create_coordinate_system(origin = [0, "$chip_pos_y","$chip_pos_z"], name = "wafer_coord")
+    wafer_coord.set_as_working_cs()
+    wafer_config = dict(
+        origin   = ["-$wafer_width/2", "-$wafer_height/2", 0],
+        sizes    = ["$wafer_width", "$wafer_height", "$wafer_thickness"],
+        name     = "wafer",
+        material = "silicon"
+    )
+    wafer_object = hfss.modeler.create_box( **wafer_config )
+
+    chip_coord = hfss.modeler.create_coordinate_system(origin = [0, 0,"$wafer_thickness"], reference_cs="wafer_coord", name = "chip_coord")
+    chip_coord.set_as_working_cs()
+    cap1 = hfss.modeler.create_rectangle(origin = ["-0.5*$chip_width", "0.5*$chip_gap", 0], sizes = ["$chip_width", "$chip_height"], name = "cap1", orientation="XY")
+    cap2 = hfss.modeler.create_rectangle(origin = ["-0.5*$chip_width", "-0.5*$chip_gap - $chip_height", 0], sizes =  ["$chip_width", "$chip_height"], name = "cap2", orientation="XY")
+    jj = hfss.modeler.create_rectangle(origin = ["-10um","-0.5*$chip_gap" ], sizes=["20um","$chip_gap"], name = "jj", orientation="XY")
 
     ############################################
     ### Assign perfect E #######################
@@ -292,8 +298,8 @@ def device_BoxCavity( hfss, config ):
     
     ## Only for newer pyaedt versions ?
     hfss.assign_perfect_e("cavity")
-    # hfss.assign_perfect_e("antenna_in")
-    # hfss.assign_perfect_e("antenna_out")
+    hfss.assign_perfect_e("cap1")
+    hfss.assign_perfect_e("cap2")
 
     ############################################
     ### Create ports ###########################
@@ -311,11 +317,16 @@ def device_BoxCavity( hfss, config ):
         # port_out = hfss.modeler.create_circle(origin = [0, 0, 0], radius = "$port_outer_radius", name = "output", orientation="XY")
         hfss.wave_port(assignment=port_out_face, name = "Port_out", modes = config["solution"]["options"]["n_waveport_mode"])
     elif config["solution"]["type"]=="Eigenmode":
-        pass
-        # sheet = hfss.assign_lumped_rlc_to_sheet(assignment="port_out", 
-        #                                 start_direction=hfss.AxisDir.YNeg, 
-        #                                 inductance=9e-9, name="Port_out")
-        # sheet.update_property(
-        #     prop_name = "Inductance",
-        #     prop_value = "$chip_inductance"
-        # )
+        sheet = hfss.assign_lumped_rlc_to_sheet(assignment="jj", 
+                                        start_direction=hfss.AxisDir.YNeg, 
+                                        inductance=9e-9, name="jj")
+        sheet.update_property(
+            prop_name = "Inductance",
+            prop_value = "$chip_inductance"
+        )
+
+    ############################################
+    ### Assign mesh ############################
+    ############################################
+    hfss.mesh.assign_length_mesh(["cap1", "cap2"], inside_selection=False, maximum_length="20um", name="mesh_cap")
+    hfss.mesh.assign_length_mesh(["jj"], inside_selection=False, maximum_length="5um", name="mesh_JJ") # maximum 7um for JJ in qiskit-metal

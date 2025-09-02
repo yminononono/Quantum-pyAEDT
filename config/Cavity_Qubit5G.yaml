@@ -1,6 +1,6 @@
 solution:
   name: "Cavity5G"
-  type: "Modal" # "Eigenmode" or "Modal"
+  type: "Eigenmode" # "Eigenmode" or "Modal"
   options:
     # Common options
     max_passes     : 20
@@ -8,12 +8,12 @@ solution:
     SaveFields     : True
     # Eigen mode
     min_frequency: "500MHz" # "2GHz"
-    n_mode       : 5
+    n_mode       : 3
     copy_mesh    : True
     # Driven modal mode
     adaptive_solution_type  : "single" # single, broadband
-    start_frequency         : 6.0
-    stop_frequency          : 9.0
+    start_frequency         : 4.0
+    stop_frequency          : 10.0
     medium_frequency        : "eval:0.5*(start_frequency + stop_frequency)"
     adaptive_setup_frequency: "eval:medium_frequency"
     num_of_freq_points      : 601
@@ -31,9 +31,9 @@ parameter:
   "$port_inner_radius": "0.3mm"
   "$port_outer_radius": "2.1mm"
   "$chip_inductance"  : "9nH"
-  "$chip_gap"         : "20um" # 20um
-  "$chip_width"       : "250um" # 250um
-  "$chip_height"      : "400um" # 400um 
+  "$chip_gap"         : "200um" 
+  "$chip_width"       : "500um" 
+  "$chip_height"      : "600um"
   "$chip_theta"       : "0deg" # 0deg
   "$chip_pos_z_ratio" : "0.5"
   "$chip_pos_z"       : "$chip_pos_z_ratio*$cavity_height"
@@ -58,21 +58,16 @@ parameter:
 
 sweep:
   list:
-    Eigenmode: [] 
-      # - "$chip_inductance"
+    Eigenmode:
+      - "$chip_inductance"
     Modal: []
       # - "$chip_theta"
       # - "$chip_pos_z_ratio" 
   config:
     "$chip_inductance":
-        - start_point   : 1.25
-          end_point     : 3
-          step          : 0.25
-          units         : "nH"
-          variation_type: "LinearStep"
-        - start_point   : 0.4
-          end_point     : 1
-          step          : 0.05
+        - start_point   : 6
+          end_point     : 12
+          step          : 1
           units         : "nH"
           variation_type: "LinearStep"
     "$chip_theta": 
