@@ -42,7 +42,7 @@ parameter:
   "$chip_pos_x"       : "0"
   "$wafer_thickness"  : "0.525mm"
   "$wafer_width"      : "2mm"
-  "$wafer_height"     : "0.95*$cavity_length"
+  "$wafer_height"     : "$cavity_length"
 
 ## Under construction...
 # devices:

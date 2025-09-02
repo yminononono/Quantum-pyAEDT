@@ -218,7 +218,8 @@ def device_BoxCavity( hfss, config ):
     port_in_object = hfss.modeler.create_cylinder( **cylinder_config )
     # faces = port_in_object.faces
     # port_in_face = max(faces, key=lambda f: f.center[2])
-    port_in_face = port_in_object.top_face_y
+    port_in_face = hfss.modeler.create_object_from_face(port_in_object.top_face_y)
+    port_in_face.name = "input"
 
     cylinder_config = dict(
         orientation = "Z",
@@ -229,9 +230,10 @@ def device_BoxCavity( hfss, config ):
         material    = "vacuum"
     )
     port_out_object = hfss.modeler.create_cylinder( **cylinder_config )
-    faces = port_out_object.faces
+    # faces = port_out_object.faces
     # port_out_face = max(faces, key=lambda f: f.center[2])
-    port_out_face = port_out_object.top_face_y
+    port_out_face = hfss.modeler.create_object_from_face(port_out_object.top_face_y)
+    port_out_face.name = "output"
 
     box_object.unite(["port_in", "port_out"])
 
@@ -317,6 +319,20 @@ def device_BoxCavity( hfss, config ):
         # port_out = hfss.modeler.create_circle(origin = [0, 0, 0], radius = "$port_outer_radius", name = "output", orientation="XY")
         hfss.wave_port(assignment=port_out_face, name = "Port_out", modes = config["solution"]["options"]["n_waveport_mode"])
     elif config["solution"]["type"]=="Eigenmode":
+
+        # for face in box_object.faces:
+        #     temp = hfss.modeler.get_face_by_id( face.id )
+        #     print(temp.name)
+        #     print(face.center)
+
+        hfss.assign_lumped_rlc_to_sheet(assignment=port_in_face.name, 
+                                        start_direction = [port_in_face.bottom_edge_x.midpoint, port_in_face.faces[0].center],
+                                        resistance=50, name="Port_in")
+
+        hfss.assign_lumped_rlc_to_sheet(assignment=port_out_face.name, 
+                                        start_direction = [port_out_face.bottom_edge_x.midpoint, port_out_face.faces[0].center],
+                                        resistance=50, name="Port_out")
+        
         sheet = hfss.assign_lumped_rlc_to_sheet(assignment="jj", 
                                         start_direction=hfss.AxisDir.YNeg, 
                                         inductance=9e-9, name="jj")
